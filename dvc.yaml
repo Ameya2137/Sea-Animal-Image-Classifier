@@ -1,0 +1,62 @@
+stages:
+
+  data_collection:
+    cmd: python src/data_collection.py
+    deps:
+      - src/data_collection.py
+      - params.yaml
+      - data/raw
+    outs:
+      - results/dataset_statistics.yaml
+
+  data_processing:
+    cmd: python src/data_processing.py
+    deps:
+      - src/data_processing.py
+      - params.yaml
+      - data/raw
+    outs:
+      - data/processed/train.csv
+      - data/processed/validation.csv
+      - data/processed/test.csv
+
+  feature_selection:
+    cmd: python src/feature_selection.py
+    deps:
+      - src/feature_selection.py
+      - params.yaml
+      - data/processed/train.csv
+      - data/processed/validation.csv
+      - data/processed/test.csv
+    outs:
+      - data/processed/train_features.npz
+      - data/processed/validation_features.npz
+      - data/processed/test_features.npz
+
+  model_training:
+    cmd: python src/model_training.py
+    deps:
+      - src/model_training.py
+      - params.yaml
+      - data/processed/train_features.npz
+      - data/processed/validation_features.npz
+    outs:
+      - models/sea_animal_classifier.keras
+      - models/class_mapping.json
+      - results/training_history.json
+
+  model_evaluation:
+    cmd: python src/model_evaluation.py
+    deps:
+      - src/model_evaluation.py
+      - params.yaml
+      - models/sea_animal_classifier.keras
+      - models/class_mapping.json
+      - data/processed/test_features.npz
+      - results/training_history.json
+    outs:
+      - results/evaluation_metrics.json
+      - results/classification_report.json
+      - results/confusion_matrix.png
+      - results/accuracy_curve.png
+      - results/loss_curve.png

@@ -1,0 +1,11 @@
+tensorflow==2.21.0
+numpy
+pandas
+scikit-learn
+scikit-image
+Pillow
+PyYAML
+matplotlib
+seaborn
+tqdm
+dvc==3.67.1
