@@ -1,8 +1,8 @@
-\# Sea Animal Image Classification using DVC
+# Sea Animal Image Classification using DVC
 
 
 
-\## Project Overview
+## Project Overview
 
 
 
@@ -22,23 +22,16 @@ https://www.kaggle.com/datasets/vencerlanz09/sea-animals-image-dataste
 
 
 
-\## Dataset Information
+## Dataset Information
+
+- Total Images: 13,711
+- Number of Classes: 23
+- Training Images: 9,619
+- Validation Images: 2,046
+- Test Images: 2,046
 
 
-
-\- Total Images: 13,711
-
-\- Number of Classes: 23
-
-\- Training Images: 9,619
-
-\- Validation Images: 2,046
-
-\- Test Images: 2,046
-
-
-
-\## Project Structure
+## Project Structure
 
 
 
@@ -84,63 +77,26 @@ sea\_animal\_classifier/
 
 
 
-\## Pipeline Stages
+## Pipeline Stages
 
-
-
-\### 1. Data Collection
-
-
+### 1. Data Collection
 
 The data collection module validates the Sea Animals dataset, detects class folders, verifies image files, and generates dataset statistics.
 
-
-
-\### 2. Data Processing
-
-
+### 2. Data Processing
 
 The dataset is divided into training, validation, and testing subsets using a reproducible class-wise split.
 
+- Training: approximately 70%
+- Validation: approximately 15%
+- Testing: approximately 15%
 
-
-\- Training: approximately 70%
-
-\- Validation: approximately 15%
-
-\- Testing: approximately 15%
-
-
-
-\### 3. Feature Selection
-
-
-
+### 3. Feature Selection
 Images are resized to 128x128 pixels and converted to grayscale.
-
-
-
 Histogram of Oriented Gradients (HOG) is used to extract image features.
-
-
-
-Initial HOG features:
-
-
-
-8100 features per image
-
-
-
+Initial HOG features: 8100 features per image
 VarianceThreshold feature selection is then fitted only on the training data to avoid data leakage.
-
-
-
-Final selected features:
-
-
-
-303 features per image
+Final selected features: 303 features per image
 
 
 
