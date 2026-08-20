@@ -1,376 +1,479 @@
-# Sea Animal Image Classification using DVC
+# Sea Animal Image Classifier
 
+A modular image classification pipeline for classifying **23 categories of sea animals**, built with Python, TensorFlow, HOG feature extraction, and DVC for reproducible machine learning workflows.
 
+The project separates the complete ML workflow into independent stages for data collection, preprocessing, feature extraction and selection, model training, and evaluation. DVC manages the dependencies between these stages and enables automated end-to-end pipeline execution.
+
+---
 
 ## Project Overview
 
+The classifier uses **Histogram of Oriented Gradients (HOG)** to extract visual features from sea animal images. Variance-based feature selection reduces the resulting feature space before classification using a **Multi-Layer Perceptron (MLP)** neural network.
 
+The complete workflow is managed through a DVC pipeline:
 
-This project implements a modular image classification application with an automated Machine Learning pipeline using DVC (Data Version Control).
+```text
+Raw Dataset
+     |
+     v
+Data Collection
+     |
+     v
+Data Processing
+     |
+     v
+HOG Feature Extraction
+     |
+     v
+Feature Selection
+     |
+     v
+Model Training
+     |
+     v
+Model Evaluation
+```
 
+## Dataset
 
-
-The system classifies sea animal images into 23 different classes using HOG feature extraction, variance-based feature selection, and a Multi-Layer Perceptron neural network.
-
-
-
-Dataset:
-
-Sea Animals Image Dataset - Kaggle  
+The project uses the **Sea Animals Image Dataset** available on Kaggle:
 
 https://www.kaggle.com/datasets/vencerlanz09/sea-animals-image-dataste
 
+The dataset contains **13,711 images across 23 classes**.
 
+| Dataset Split | Images |
+|---|---:|
+| Training | 9,619 |
+| Validation | 2,046 |
+| Test | 2,046 |
+| **Total** | **13,711** |
 
-## Dataset Information
+The 23 classes are:
 
-- Total Images: 13,711
-- Number of Classes: 23
-- Training Images: 9,619
-- Validation Images: 2,046
-- Test Images: 2,046
+```text
+Clams, Corals, Crabs, Dolphin, Eel, Fish, Jelly Fish, Lobster,
+Nudibranchs, Octopus, Otter, Penguin, Puffers, Sea Rays,
+Sea Urchins, Seahorse, Seal, Sharks, Shrimp, Squid, Starfish,
+Turtle_Tortoise, Whale
+```
 
+The raw dataset is not stored directly in this repository because of its size. DVC metadata is provided through `data/raw.dvc`.
+
+---
 
 ## Project Structure
 
-
-
-sea\_animal\_classifier/
-
+```text
+sea_animal_classifier/
 |
-
 |-- src/
-
-|   |-- data\_collection.py
-
-|   |-- data\_processing.py
-
-|   |-- feature\_selection.py
-
-|   |-- model\_training.py
-
-|   |-- model\_evaluation.py
-
+|   |-- data_collection.py
+|   |-- data_processing.py
+|   |-- feature_selection.py
+|   |-- model_training.py
+|   `-- model_evaluation.py
 |
-
 |-- data/
-
 |   |-- raw.dvc
-
-|   |-- processed/
-
+|   `-- processed/
 |
-
 |-- models/
-
 |-- results/
-
+|
 |-- params.yaml
-
 |-- dvc.yaml
-
 |-- dvc.lock
-
 |-- requirements.txt
-
 |-- README.md
+|-- .gitignore
+`-- .dvcignore
+```
 
-
+---
 
 ## Pipeline Stages
 
 ### 1. Data Collection
 
-The data collection module validates the Sea Animals dataset, detects class folders, verifies image files, and generates dataset statistics.
+`src/data_collection.py`
+
+The data collection stage:
+
+- Locates the downloaded dataset.
+- Detects the class directories.
+- Validates image files.
+- Counts images for each class.
+- Generates dataset statistics.
+
+The validated dataset contains **13,711 images belonging to 23 classes**.
 
 ### 2. Data Processing
 
-The dataset is divided into training, validation, and testing subsets using a reproducible class-wise split.
+`src/data_processing.py`
 
-- Training: approximately 70%
-- Validation: approximately 15%
-- Testing: approximately 15%
+The processing stage creates reproducible training, validation, and testing splits.
 
-### 3. Feature Selection
-Images are resized to 128x128 pixels and converted to grayscale.
-Histogram of Oriented Gradients (HOG) is used to extract image features.
-Initial HOG features: 8100 features per image
-VarianceThreshold feature selection is then fitted only on the training data to avoid data leakage.
-Final selected features: 303 features per image
+| Split | Percentage | Images |
+|---|---:|---:|
+| Training | ~70% | 9,619 |
+| Validation | ~15% | 2,046 |
+| Testing | ~15% | 2,046 |
 
+A fixed random seed is used to make the splitting process reproducible.
 
+### 3. Feature Extraction and Selection
 
-\### 4. Model Training
+`src/feature_selection.py`
 
+Images are resized to **128 × 128 pixels** and converted to grayscale before feature extraction.
 
+**Histogram of Oriented Gradients (HOG)** is used to represent image shape and edge information numerically.
 
-A Multi-Layer Perceptron neural network is used for classification.
+HOG initially produces:
 
+```text
+8,100 features per image
+```
 
+Variance-based feature selection is then applied.
 
-Architecture:
+Importantly, the feature selector is fitted **only on the training data** and subsequently applied to the validation and test sets. This prevents information from the validation or test sets from leaking into feature selection.
 
+Final feature dimensions:
 
+```text
+Training:   (9619, 303)
+Validation: (2046, 303)
+Test:       (2046, 303)
+```
 
-\- Input Layer: 303 features
+Therefore, the feature-selection stage reduces the representation from **8,100 to 303 features**.
 
-\- Dense Layer: 256 neurons
+### 4. Model Training
 
-\- Dropout
+`src/model_training.py`
 
-\- Dense Layer: 128 neurons
+The selected HOG features are classified using a Multi-Layer Perceptron neural network.
 
-\- Dropout
+Model architecture:
 
-\- Output Layer: 23 classes with Softmax activation
+```text
+Input
+303 features
+     |
+     v
+Dense Layer
+256 neurons, ReLU
+     |
+     v
+Dropout
+     |
+     v
+Dense Layer
+128 neurons, ReLU
+     |
+     v
+Dropout
+     |
+     v
+Output Layer
+23 neurons, Softmax
+```
 
+The model contains:
 
+```text
+113,687 trainable parameters
+```
 
-The model contains approximately 113,687 trainable parameters.
+Training parameters such as learning rate, batch size, epochs, optimizer, dropout rate, and hidden-layer dimensions are controlled through `params.yaml`.
 
+### 5. Model Evaluation
 
+`src/model_evaluation.py`
 
-\### 5. Model Evaluation
+The trained model is evaluated against the independent test set.
 
+The evaluation stage calculates and generates:
 
+- Accuracy
+- Precision
+- Recall
+- F1-score
+- Per-class classification report
+- Confusion matrix
+- Training and validation accuracy curves
+- Training and validation loss curves
 
-The trained model is evaluated on the test dataset using:
+The final automated DVC pipeline run achieved:
 
+```text
+Test Accuracy: 20.28%
+```
 
+The model performs above the approximately **4.35% random-choice baseline** for a balanced 23-class classification problem, but the results also demonstrate the limitations of HOG features for a complex multi-class natural-image dataset.
 
-\- Accuracy
+---
 
-\- Precision
+## DVC Pipeline
 
-\- Recall
+The complete workflow is defined in `dvc.yaml`.
 
-\- F1-score
+The pipeline consists of five stages:
 
-\- Classification Report
+```text
+data_collection
+      |
+      v
+data_processing
+      |
+      v
+feature_selection
+      |
+      v
+model_training
+      |
+      v
+model_evaluation
+```
 
-\- Confusion Matrix
+DVC tracks stage dependencies, parameters, and outputs. If nothing has changed, DVC avoids unnecessarily executing stages again.
 
-\- Training/Validation Accuracy Curve
+For example:
 
-\- Training/Validation Loss Curve
+```text
+Stage 'data_collection' didn't change, skipping
+Stage 'data_processing' didn't change, skipping
+Stage 'feature_selection' didn't change, skipping
+Stage 'model_training' didn't change, skipping
+Stage 'model_evaluation' didn't change, skipping
 
+Data and pipelines are up to date.
+```
 
+---
 
-Final test accuracy obtained during the automated DVC run:
+## Configuration
 
+Pipeline parameters are centralized in `params.yaml`.
 
+Configurable parameters include:
 
-20.28%
+- Image size
+- Number of image channels
+- Validation split
+- Test split
+- Random seed
+- Batch size
+- Number of epochs
+- Learning rate
+- Optimizer
+- Dropout rate
+- Hidden-layer dimensions
+- Feature-selection method
+- Variance threshold
+- Maximum number of features
+- Rotation configuration
+- Width shift
+- Height shift
+- Zoom
+- Horizontal flipping
+- Brightness configuration
 
+This allows experiments to be configured without hard-coding values throughout the individual pipeline modules.
 
+---
 
-\## Configuration
+## Installation
 
+### 1. Clone the repository
 
+```bash
+git clone https://github.com/Ameya2137/Sea-Animal-Image-Classifier.git
+cd Sea-Animal-Image-Classifier
+```
 
-All configurable parameters are stored inside:
+### 2. Create a virtual environment
 
-
-
-params.yaml
-
-
-
-Parameters include:
-
-
-
-\- Image size
-
-\- Number of channels
-
-\- Validation split
-
-\- Test split
-
-\- Random seed
-
-\- Batch size
-
-\- Number of epochs
-
-\- Learning rate
-
-\- Optimizer
-
-\- Dropout rate
-
-\- Hidden-layer sizes
-
-\- Feature-selection threshold
-
-\- Maximum selected features
-
-\- Augmentation parameters
-
-
-
-More than 10 tunable parameters are provided.
-
-
-
-\## Installation
-
-
-
-Create a virtual environment:
-
-
-
+```bash
 python -m venv .venv
+```
 
+On Windows:
 
+```powershell
+.venv\Scripts\activate
+```
 
-Activate it on Windows:
+### 3. Install dependencies
 
-
-
-.venv\\Scripts\\activate
-
-
-
-Install dependencies:
-
-
-
+```bash
 pip install -r requirements.txt
+```
 
+The project was developed using **Python 3.11**.
 
+---
 
-\## Dataset Setup
+## Dataset Setup
 
+Download and extract the Sea Animals Image Dataset from Kaggle.
 
-
-Download the Sea Animals Image Dataset from Kaggle.
-
-
-
-Extract the dataset and update the source\_dir parameter inside params.yaml if necessary.
-
-
+The extracted dataset should contain one directory for each animal class.
 
 Example:
 
+```text
+sea_animals_dataset/
+|-- Clams/
+|-- Corals/
+|-- Crabs/
+|-- Dolphin/
+|-- Eel/
+|-- Fish/
+|-- ...
+`-- Whale/
+```
 
+Update the dataset location in `params.yaml`:
 
+```yaml
 data:
+  source_dir: "C:/path/to/sea_animals_dataset"
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+```
 
-&#x20; source\_dir: "C:/Users/USERNAME/Downloads/sea\_animals\_dataset"
+The data collection stage can then prepare the dataset for the rest of the pipeline.
 
+---
 
+## Running the Pipeline
 
-\## DVC
+### Execute the complete pipeline
 
-
-
-Initialize DVC:
-
-
-
-dvc init
-
-
-
-The raw dataset is tracked using:
-
-
-
-dvc add data/raw
-
-
-
-To execute the complete ML pipeline:
-
-
-
+```bash
 dvc repro
+```
 
+DVC automatically determines which stages need to execute based on changes to dependencies, parameters, source code, and previous outputs.
 
+### Check pipeline status
 
-DVC automatically executes the following dependency graph:
-
-
-
-Data Collection
-
-\-> Data Processing
-
-\-> Feature Selection
-
-\-> Model Training
-
-\-> Model Evaluation
-
-
-
-To check the pipeline status:
-
-
-
+```bash
 dvc status
+```
 
+A fully reproduced pipeline should report:
 
+```text
+Data and pipelines are up to date.
+```
 
-To display the pipeline graph:
+### View the dependency graph
 
-
-
+```bash
 dvc dag
+```
 
+---
 
+## Running Individual Stages
 
-\## Results
+Each stage is implemented as an independent Python module and can also be executed manually.
 
+```bash
+python src/data_collection.py
+python src/data_processing.py
+python src/feature_selection.py
+python src/model_training.py
+python src/model_evaluation.py
+```
 
+For normal use, `dvc repro` is recommended because it manages stage dependencies automatically.
 
-The pipeline generates:
+---
 
+## Generated Outputs
 
+The pipeline generates the following evaluation artifacts:
 
-\- dataset\_statistics.yaml
+```text
+results/
+|-- dataset_statistics.yaml
+|-- training_history.json
+|-- evaluation_metrics.json
+|-- classification_report.json
+|-- confusion_matrix.png
+|-- accuracy_curve.png
+`-- loss_curve.png
+```
 
-\- training\_history.json
+The trained model and class mapping are generated under:
 
-\- evaluation\_metrics.json
+```text
+models/
+|-- sea_animal_classifier.keras
+`-- class_mapping.json
+```
 
-\- classification\_report.json
+Generated artifacts are managed by DVC rather than being stored directly in Git.
 
-\- confusion\_matrix.png
+---
 
-\- accuracy\_curve.png
+## Technologies Used
 
-\- loss\_curve.png
+| Technology | Purpose |
+|---|---|
+| Python 3.11 | Core programming language |
+| TensorFlow / Keras | Neural network training |
+| NumPy | Numerical processing |
+| Pandas | Dataset metadata processing |
+| scikit-learn | Feature selection and evaluation |
+| scikit-image | HOG feature extraction |
+| Matplotlib | Evaluation visualizations |
+| Pillow | Image processing |
+| PyYAML | Configuration management |
+| DVC | ML pipeline and data versioning |
+| Git | Source-code version control |
 
+---
 
+## Limitations
 
-\## Technology Stack
+The current classifier uses handcrafted HOG features. HOG captures edges and shape information effectively but does not capture complex color, texture, and high-level semantic features as effectively as modern convolutional neural networks.
 
+The dataset is also imbalanced, with some classes containing substantially more images than others. For example, the `Turtle_Tortoise` class contains considerably more samples than many other categories.
 
+These factors contribute to the relatively modest classification performance.
 
-\- Python 3.11
+---
 
-\- TensorFlow
+## Future Improvements
 
-\- NumPy
+Potential improvements include:
 
-\- Pandas
+- Replacing HOG features with learned CNN features.
+- Using transfer learning with architectures such as MobileNet or EfficientNet.
+- Applying class weighting to address dataset imbalance.
+- Introducing controlled image augmentation during training.
+- Comparing handcrafted features against deep-learning representations.
+- Performing hyperparameter optimization.
+- Adding DVC experiment tracking for systematic model comparison.
 
-\- scikit-learn
+---
 
-\- scikit-image
+## Reproducibility
 
-\- Matplotlib
+The project uses:
 
-\- Pillow
+- Modular Python pipeline stages
+- Centralized YAML configuration
+- Fixed random seeds
+- DVC dependency tracking
+- DVC pipeline automation
+- Version-controlled pipeline definitions
+- Environment dependencies through `requirements.txt`
 
-\- PyYAML
-
-\- DVC
-
-\- Git
-
+Together, these components provide a reproducible workflow for experimentation and further development.
