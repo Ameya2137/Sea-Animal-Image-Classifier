@@ -1,8 +1,8 @@
 {
-    "test_accuracy": 0.20283479960899314,
-    "macro_precision": 0.14228564316698855,
-    "macro_recall": 0.14292864110961506,
-    "macro_f1": 0.128326013186123,
+    "test_accuracy": 0.21700879765395895,
+    "macro_precision": 0.18695971174823436,
+    "macro_recall": 0.14972350118120353,
+    "macro_f1": 0.1376013532819874,
     "number_of_test_images": 2046,
     "number_of_classes": 23
 }

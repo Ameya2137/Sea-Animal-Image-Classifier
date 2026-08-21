@@ -10,8 +10,8 @@ stages:
       nfiles: 13711
     - path: src/data_collection.py
       hash: md5
-      md5: d5dde600410286decc3cebb606fd58aa
-      size: 3551
+      md5: 20944907006d5edbabd23b7d3067c26a
+      size: 3410
     params:
       params.yaml:
         data.raw_dir: data/raw
@@ -31,8 +31,8 @@ stages:
       nfiles: 13711
     - path: src/data_processing.py
       hash: md5
-      md5: 740215e3dced079310524ec553bc44f4
-      size: 4165
+      md5: 3fc581e6370dbc4a24b668545f3fb987
+      size: 3981
     params:
       params.yaml:
         data.processed_dir: data/processed
@@ -70,8 +70,8 @@ stages:
       size: 135332
     - path: src/feature_selection.py
       hash: md5
-      md5: c75071431a5fdb8e9b728ab50b11a5e3
-      size: 6166
+      md5: c2ace951538c68b9d71bdaea66add70f
+      size: 5894
     params:
       params.yaml:
         data.processed_dir: data/processed
@@ -104,8 +104,8 @@ stages:
       size: 2126541
     - path: src/model_training.py
       hash: md5
-      md5: e444642f0ab666c542362dccf1d71f37
-      size: 6744
+      md5: a397b0325b278d78fc95419442195634
+      size: 6433
     params:
       params.yaml:
         data.processed_dir: data/processed
@@ -113,7 +113,7 @@ stages:
         model.dense_units_2: 128
         split.random_seed: 42
         training.batch_size: 32
-        training.dropout_rate: 0.3
+        training.dropout_rate: 0.2
         training.epochs: 15
         training.learning_rate: 0.001
         training.optimizer: adam
@@ -124,12 +124,12 @@ stages:
       size: 498
     - path: models/sea_animal_classifier.keras
       hash: md5
-      md5: ce3426e0c0cb7555be3281a343a76f87
+      md5: 34495e1c641168531ce793ccda55c656
       size: 1394230
     - path: results/training_history.json
       hash: md5
-      md5: a4dfb1e0f38c285d2a45fb44d2fa3d80
-      size: 1846
+      md5: 055b640c15ef3a0dd0860706a5dcb1bc
+      size: 1852
   model_evaluation:
     cmd: python src/model_evaluation.py
     deps:
@@ -143,37 +143,37 @@ stages:
       size: 498
     - path: models/sea_animal_classifier.keras
       hash: md5
-      md5: ce3426e0c0cb7555be3281a343a76f87
+      md5: 34495e1c641168531ce793ccda55c656
       size: 1394230
     - path: results/training_history.json
       hash: md5
-      md5: a4dfb1e0f38c285d2a45fb44d2fa3d80
-      size: 1846
+      md5: 055b640c15ef3a0dd0860706a5dcb1bc
+      size: 1852
     - path: src/model_evaluation.py
       hash: md5
-      md5: cded982daaff6445dc9696cb68518bdc
-      size: 8730
+      md5: 829c7f4b642c5031ad070059803acf11
+      size: 8308
     params:
       params.yaml:
         data.processed_dir: data/processed
     outs:
     - path: results/accuracy_curve.png
       hash: md5
-      md5: d3f6b33bb86b0d82cd102e933fc3d495
-      size: 81510
+      md5: 9340ef4bc4b2c21eee204c2aa2962f41
+      size: 83118
     - path: results/classification_report.json
       hash: md5
-      md5: 3bb8c3ed55fe60eeb37ccdc1af9688f9
-      size: 4030
+      md5: d889322585235848d425fa1a157d77b3
+      size: 4220
     - path: results/confusion_matrix.png
       hash: md5
-      md5: 4ec9325a43de567609824927035111d9
-      size: 428633
+      md5: 87befce770867dc48ea6846bafe0baf0
+      size: 423554
     - path: results/evaluation_metrics.json
       hash: md5
-      md5: 19f89056ac4a1aceb1d7b3afa20b5780
-      size: 235
+      md5: 627f5045c2049d9b32eb6b2b804ebc35
+      size: 236
     - path: results/loss_curve.png
       hash: md5
-      md5: 48e847a309cb467ed7a6c9d637a0ca83
-      size: 72297
+      md5: 0c6f90cdce69b34f67f5466bdeb97af1
+      size: 76964
