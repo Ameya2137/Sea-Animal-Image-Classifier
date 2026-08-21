@@ -143,8 +143,8 @@ stages:
       size: 1846
     - path: src/model_evaluation.py
       hash: md5
-      md5: 3246561e3ab49ac8725962e3e939f24d
-      size: 7930
+      md5: cded982daaff6445dc9696cb68518bdc
+      size: 8730
     outs:
     - path: results/accuracy_curve.png
       hash: md5
@@ -160,8 +160,8 @@ stages:
       size: 428633
     - path: results/evaluation_metrics.json
       hash: md5
-      md5: dd04d01adcd06d19cd66963dd39b7a8b
-      size: 112
+      md5: 19f89056ac4a1aceb1d7b3afa20b5780
+      size: 235
     - path: results/loss_curve.png
       hash: md5
       md5: 48e847a309cb467ed7a6c9d637a0ca83

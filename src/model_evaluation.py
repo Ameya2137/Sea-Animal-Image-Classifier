@@ -7,6 +7,9 @@ import matplotlib.pyplot as plt
 
 from sklearn.metrics import (
     accuracy_score,
+    f1_score,
+    precision_score,
+    recall_score,
     classification_report,
     confusion_matrix,
     ConfusionMatrixDisplay
@@ -105,8 +108,41 @@ def evaluate_model(
         y_pred
     )
 
+    macro_precision = precision_score(
+        y_test_encoded,
+        y_pred,
+        average="macro",
+        zero_division=0
+    )
+
+    macro_recall = recall_score(
+        y_test_encoded,
+        y_pred,
+        average="macro",
+        zero_division=0
+    )
+
+    macro_f1 = f1_score(
+        y_test_encoded,
+        y_pred,
+        average="macro",
+        zero_division=0
+    )
+
     print(
         f"\nTest Accuracy: {accuracy:.4f}"
+    )
+
+    print(
+        f"Macro Precision: {macro_precision:.4f}"
+    )
+
+    print(
+        f"Macro Recall: {macro_recall:.4f}"
+    )
+
+    print(
+        f"Macro F1 Score: {macro_f1:.4f}"
     )
 
     # ---------------------------------------------------------
@@ -158,6 +194,9 @@ def evaluate_model(
 
     metrics = {
         "test_accuracy": float(accuracy),
+        "macro_precision": float(macro_precision),
+        "macro_recall": float(macro_recall),
+        "macro_f1": float(macro_f1),
         "number_of_test_images": int(len(y_test)),
         "number_of_classes": int(len(class_names))
     }

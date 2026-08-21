@@ -54,8 +54,12 @@ stages:
       - models/class_mapping.json
       - data/processed/test_features.npz
       - results/training_history.json
+
+    metrics:
+      - results/evaluation_metrics.json:
+          cache: false
+
     outs:
-      - results/evaluation_metrics.json
       - results/classification_report.json
       - results/confusion_matrix.png
       - results/accuracy_curve.png
