@@ -4,8 +4,10 @@ stages:
     cmd: python src/data_collection.py
     deps:
       - src/data_collection.py
-      - params.yaml
       - data/raw
+    params:
+      - data.source_dir
+      - data.raw_dir
     outs:
       - results/dataset_statistics.yaml
 
@@ -13,8 +15,13 @@ stages:
     cmd: python src/data_processing.py
     deps:
       - src/data_processing.py
-      - params.yaml
       - data/raw
+    params:
+      - data.raw_dir
+      - data.processed_dir
+      - split.validation_size
+      - split.test_size
+      - split.random_seed
     outs:
       - data/processed/train.csv
       - data/processed/validation.csv
@@ -24,10 +31,14 @@ stages:
     cmd: python src/feature_selection.py
     deps:
       - src/feature_selection.py
-      - params.yaml
       - data/processed/train.csv
       - data/processed/validation.csv
       - data/processed/test.csv
+    params:
+      - data.processed_dir
+      - image.image_size
+      - feature_selection.threshold
+      - feature_selection.max_features
     outs:
       - data/processed/train_features.npz
       - data/processed/validation_features.npz
@@ -37,9 +48,18 @@ stages:
     cmd: python src/model_training.py
     deps:
       - src/model_training.py
-      - params.yaml
       - data/processed/train_features.npz
       - data/processed/validation_features.npz
+    params:
+      - data.processed_dir
+      - split.random_seed
+      - training.batch_size
+      - training.epochs
+      - training.learning_rate
+      - training.optimizer
+      - training.dropout_rate
+      - model.dense_units_1
+      - model.dense_units_2
     outs:
       - models/sea_animal_classifier.keras
       - models/class_mapping.json
@@ -49,11 +69,12 @@ stages:
     cmd: python src/model_evaluation.py
     deps:
       - src/model_evaluation.py
-      - params.yaml
       - models/sea_animal_classifier.keras
       - models/class_mapping.json
       - data/processed/test_features.npz
       - results/training_history.json
+    params:
+      - data.processed_dir
 
     metrics:
       - results/evaluation_metrics.json:

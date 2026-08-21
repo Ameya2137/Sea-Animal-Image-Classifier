@@ -8,14 +8,14 @@ stages:
       md5: aea076040ce84b16bdb7cb1a20400311.dir
       size: 336568419
       nfiles: 13711
-    - path: params.yaml
-      hash: md5
-      md5: a35f214dfacc5ed0684962affa1f7b2d
-      size: 622
     - path: src/data_collection.py
       hash: md5
       md5: d5dde600410286decc3cebb606fd58aa
       size: 3551
+    params:
+      params.yaml:
+        data.raw_dir: data/raw
+        data.source_dir: C:/Users/ameya/Downloads/sea_animals_dataset
     outs:
     - path: results/dataset_statistics.yaml
       hash: md5
@@ -29,14 +29,17 @@ stages:
       md5: aea076040ce84b16bdb7cb1a20400311.dir
       size: 336568419
       nfiles: 13711
-    - path: params.yaml
-      hash: md5
-      md5: a35f214dfacc5ed0684962affa1f7b2d
-      size: 622
     - path: src/data_processing.py
       hash: md5
       md5: 740215e3dced079310524ec553bc44f4
       size: 4165
+    params:
+      params.yaml:
+        data.processed_dir: data/processed
+        data.raw_dir: data/raw
+        split.random_seed: 42
+        split.test_size: 0.15
+        split.validation_size: 0.15
     outs:
     - path: data/processed/test.csv
       hash: md5
@@ -65,14 +68,16 @@ stages:
       hash: md5
       md5: 802c95944551f2696cb55a5961aecdaa
       size: 135332
-    - path: params.yaml
-      hash: md5
-      md5: a35f214dfacc5ed0684962affa1f7b2d
-      size: 622
     - path: src/feature_selection.py
       hash: md5
       md5: c75071431a5fdb8e9b728ab50b11a5e3
       size: 6166
+    params:
+      params.yaml:
+        data.processed_dir: data/processed
+        feature_selection.max_features: 512
+        feature_selection.threshold: 0.01
+        image.image_size: 128
     outs:
     - path: data/processed/test_features.npz
       hash: md5
@@ -97,14 +102,21 @@ stages:
       hash: md5
       md5: 2d613227ea36560bb193abb7bf38c749
       size: 2126541
-    - path: params.yaml
-      hash: md5
-      md5: a35f214dfacc5ed0684962affa1f7b2d
-      size: 622
     - path: src/model_training.py
       hash: md5
       md5: e444642f0ab666c542362dccf1d71f37
       size: 6744
+    params:
+      params.yaml:
+        data.processed_dir: data/processed
+        model.dense_units_1: 256
+        model.dense_units_2: 128
+        split.random_seed: 42
+        training.batch_size: 32
+        training.dropout_rate: 0.3
+        training.epochs: 15
+        training.learning_rate: 0.001
+        training.optimizer: adam
     outs:
     - path: models/class_mapping.json
       hash: md5
@@ -112,7 +124,7 @@ stages:
       size: 498
     - path: models/sea_animal_classifier.keras
       hash: md5
-      md5: 01de109c4c79f50ea9184bdd238c6833
+      md5: ce3426e0c0cb7555be3281a343a76f87
       size: 1394230
     - path: results/training_history.json
       hash: md5
@@ -131,12 +143,8 @@ stages:
       size: 498
     - path: models/sea_animal_classifier.keras
       hash: md5
-      md5: 01de109c4c79f50ea9184bdd238c6833
+      md5: ce3426e0c0cb7555be3281a343a76f87
       size: 1394230
-    - path: params.yaml
-      hash: md5
-      md5: a35f214dfacc5ed0684962affa1f7b2d
-      size: 622
     - path: results/training_history.json
       hash: md5
       md5: a4dfb1e0f38c285d2a45fb44d2fa3d80
@@ -145,6 +153,9 @@ stages:
       hash: md5
       md5: cded982daaff6445dc9696cb68518bdc
       size: 8730
+    params:
+      params.yaml:
+        data.processed_dir: data/processed
     outs:
     - path: results/accuracy_curve.png
       hash: md5
