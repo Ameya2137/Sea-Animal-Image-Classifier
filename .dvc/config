@@ -1,0 +1,4 @@
+[core]
+    remote = s3remote
+['remote "s3remote"']
+    url = s3://sea-animal-dvc-786382939901-ap-south-1-an/dvc-storage
