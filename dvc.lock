@@ -70,8 +70,8 @@ stages:
       size: 135332
     - path: src/feature_selection.py
       hash: md5
-      md5: c2ace951538c68b9d71bdaea66add70f
-      size: 5894
+      md5: 485c432d972ac639a516c60464944924
+      size: 6087
     params:
       params.yaml:
         data.processed_dir: data/processed

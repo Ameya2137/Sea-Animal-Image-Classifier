@@ -2,6 +2,7 @@ import os
 import yaml
 import numpy as np
 import pandas as pd
+import joblib
 
 from PIL import Image
 from skimage.feature import hog
@@ -141,6 +142,14 @@ def main():
 
     train_selected = selector.fit_transform(
         train_features
+    )
+    
+    # Save fitted feature selector for deployment
+    os.makedirs("models", exist_ok=True)
+
+    joblib.dump(
+        selector,
+        "models/feature_selector.joblib"
     )
 
     print(

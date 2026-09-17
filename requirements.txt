@@ -9,3 +9,9 @@ matplotlib
 seaborn
 tqdm
 dvc==3.67.1
+fastapi
+uvicorn
+python-multipart
+joblib
+jinja2
+python-multipart

@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MarineAI | Sea Animal Classifier</title>
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', path='/style.css') }}"
+    >
+</head>
+
+<body>
+
+    <!-- Decorative background -->
+    <div class="ocean-bg">
+        <div class="bubble bubble-1"></div>
+        <div class="bubble bubble-2"></div>
+        <div class="bubble bubble-3"></div>
+        <div class="bubble bubble-4"></div>
+        <div class="bubble bubble-5"></div>
+    </div>
+
+
+    <!-- Navigation -->
+    <nav class="navbar">
+
+        <div class="brand">
+            <div class="brand-icon">◉</div>
+
+            <div>
+                <span class="brand-name">MarineAI</span>
+                <span class="brand-subtitle">VISION SYSTEM</span>
+            </div>
+        </div>
+
+        <div class="model-status">
+            <span class="status-dot"></span>
+            Model Online
+        </div>
+
+    </nav>
+
+
+    <main class="container">
+
+        <!-- Hero -->
+        <section class="hero">
+
+            <div class="hero-tag">
+                MACHINE LEARNING • COMPUTER VISION
+            </div>
+
+            <h1>
+                Discover Life Beneath
+                <span>The Surface</span>
+            </h1>
+
+            <p>
+                Upload an image of marine life and let our
+                machine-learning model identify the sea animal.
+            </p>
+
+            <div class="model-info">
+
+                <div>
+                    <strong>{{ number_of_classes }}</strong>
+                    <span>Animal Classes</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div>
+                    <strong>HOG</strong>
+                    <span>Feature Extraction</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div>
+                    <strong>TensorFlow</strong>
+                    <span>ML Framework</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- Main application -->
+        <section class="classifier-grid">
+
+            <!-- Upload -->
+            <div class="glass-card upload-card">
+
+                <div class="card-heading">
+                    <div>
+                        <span class="step">01</span>
+                        <h2>Upload Image</h2>
+                    </div>
+
+                    <span class="card-label">INPUT</span>
+                </div>
+
+
+                <div id="dropZone" class="drop-zone">
+
+                    <input
+                        type="file"
+                        id="fileInput"
+                        accept="image/jpeg,image/png,image/webp,image/bmp"
+                        hidden
+                    >
+
+                    <div id="uploadPrompt" class="upload-prompt">
+
+                        <div class="upload-icon">
+                            ↑
+                        </div>
+
+                        <h3>Drop your image here</h3>
+
+                        <p>
+                            or click to browse your files
+                        </p>
+
+                        <button
+                            type="button"
+                            id="browseButton"
+                            class="browse-button"
+                        >
+                            Browse Image
+                        </button>
+
+                        <span class="file-types">
+                            JPG • PNG • WEBP • BMP &nbsp; | &nbsp; MAX 10 MB
+                        </span>
+
+                    </div>
+
+
+                    <!-- Preview -->
+                    <div id="previewContainer" class="preview-container hidden">
+
+                        <img
+                            id="imagePreview"
+                            alt="Selected sea animal"
+                        >
+
+                        <div class="preview-overlay">
+                            <span id="fileName"></span>
+                        </div>
+
+                        <button
+                            type="button"
+                            id="removeButton"
+                            class="remove-button"
+                            title="Remove image"
+                        >
+                            ×
+                        </button>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    id="analyzeButton"
+                    class="analyze-button"
+                    disabled
+                >
+                    <span id="buttonText">
+                        Analyze Image
+                    </span>
+
+                    <span
+                        id="spinner"
+                        class="spinner hidden"
+                    ></span>
+                </button>
+
+
+                <div id="errorBox" class="error-box hidden"></div>
+
+            </div>
+
+
+            <!-- Result -->
+            <div class="glass-card result-card">
+
+                <div class="card-heading">
+
+                    <div>
+                        <span class="step">02</span>
+                        <h2>Prediction</h2>
+                    </div>
+
+                    <span class="card-label">OUTPUT</span>
+
+                </div>
+
+
+                <!-- Empty state -->
+                <div id="emptyResult" class="empty-result">
+
+                    <div class="scan-icon">
+                        <div class="scan-line"></div>
+                        ◎
+                    </div>
+
+                    <h3>Waiting for analysis</h3>
+
+                    <p>
+                        Upload a sea-animal image and run the
+                        classifier to view the prediction.
+                    </p>
+
+                </div>
+
+
+                <!-- Prediction state -->
+                <div id="predictionResult" class="prediction-result hidden">
+
+                    <p class="prediction-label">
+                        IDENTIFIED AS
+                    </p>
+
+                    <h2 id="predictedClass" class="predicted-class">
+                        —
+                    </h2>
+
+
+                    <div class="confidence-header">
+                        <span>Model Confidence</span>
+                        <strong id="confidenceValue">0%</strong>
+                    </div>
+
+                    <div class="confidence-track">
+                        <div
+                            id="confidenceBar"
+                            class="confidence-bar"
+                        ></div>
+                    </div>
+
+
+                    <div class="separator"></div>
+
+
+                    <div class="top-heading">
+                        <span>TOP MATCHES</span>
+                        <span>CONFIDENCE</span>
+                    </div>
+
+
+                    <div id="topPredictions"></div>
+
+
+                    <button
+                        id="tryAgainButton"
+                        class="secondary-button"
+                    >
+                        Analyze Another Image
+                    </button>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <footer>
+
+            <span>
+                SEA ANIMAL IMAGE CLASSIFICATION SYSTEM
+            </span>
+
+            <span>
+                FastAPI • TensorFlow/Keras • HOG
+            </span>
+
+        </footer>
+
+    </main>
+
+
+<script>
+
+    // -----------------------------------------------------
+    // Elements
+    // -----------------------------------------------------
+
+    const dropZone =
+        document.getElementById("dropZone");
+
+    const fileInput =
+        document.getElementById("fileInput");
+
+    const browseButton =
+        document.getElementById("browseButton");
+
+    const uploadPrompt =
+        document.getElementById("uploadPrompt");
+
+    const previewContainer =
+        document.getElementById("previewContainer");
+
+    const imagePreview =
+        document.getElementById("imagePreview");
+
+    const fileName =
+        document.getElementById("fileName");
+
+    const removeButton =
+        document.getElementById("removeButton");
+
+    const analyzeButton =
+        document.getElementById("analyzeButton");
+
+    const buttonText =
+        document.getElementById("buttonText");
+
+    const spinner =
+        document.getElementById("spinner");
+
+    const errorBox =
+        document.getElementById("errorBox");
+
+    const emptyResult =
+        document.getElementById("emptyResult");
+
+    const predictionResult =
+        document.getElementById("predictionResult");
+
+    const predictedClass =
+        document.getElementById("predictedClass");
+
+    const confidenceValue =
+        document.getElementById("confidenceValue");
+
+    const confidenceBar =
+        document.getElementById("confidenceBar");
+
+    const topPredictions =
+        document.getElementById("topPredictions");
+
+    const tryAgainButton =
+        document.getElementById("tryAgainButton");
+
+
+    let selectedFile = null;
+
+
+    // -----------------------------------------------------
+    // Browse
+    // -----------------------------------------------------
+
+    browseButton.addEventListener(
+        "click",
+        (event) => {
+
+            event.stopPropagation();
+            fileInput.click();
+
+        }
+    );
+
+
+    dropZone.addEventListener(
+        "click",
+        () => {
+
+            if (!selectedFile) {
+                fileInput.click();
+            }
+
+        }
+    );
+
+
+    fileInput.addEventListener(
+        "change",
+        () => {
+
+            if (fileInput.files.length > 0) {
+                selectFile(fileInput.files[0]);
+            }
+
+        }
+    );
+
+
+    // -----------------------------------------------------
+    // Drag and drop
+    // -----------------------------------------------------
+
+    ["dragenter", "dragover"].forEach(
+        eventName => {
+
+            dropZone.addEventListener(
+                eventName,
+                event => {
+
+                    event.preventDefault();
+                    dropZone.classList.add("dragging");
+
+                }
+            );
+
+        }
+    );
+
+
+    ["dragleave", "drop"].forEach(
+        eventName => {
+
+            dropZone.addEventListener(
+                eventName,
+                event => {
+
+                    event.preventDefault();
+                    dropZone.classList.remove("dragging");
+
+                }
+            );
+
+        }
+    );
+
+
+    dropZone.addEventListener(
+        "drop",
+        event => {
+
+            const files =
+                event.dataTransfer.files;
+
+            if (files.length > 0) {
+                selectFile(files[0]);
+            }
+
+        }
+    );
+
+
+    // -----------------------------------------------------
+    // Select image
+    // -----------------------------------------------------
+
+    function selectFile(file) {
+
+        hideError();
+
+        const allowedTypes = [
+            "image/jpeg",
+            "image/png",
+            "image/webp",
+            "image/bmp"
+        ];
+
+
+        if (!allowedTypes.includes(file.type)) {
+
+            showError(
+                "Please select a JPG, PNG, WEBP or BMP image."
+            );
+
+            return;
+        }
+
+
+        if (file.size > 10 * 1024 * 1024) {
+
+            showError(
+                "The selected image must be smaller than 10 MB."
+            );
+
+            return;
+        }
+
+
+        selectedFile = file;
+
+        const reader =
+            new FileReader();
+
+
+        reader.onload = event => {
+
+            imagePreview.src =
+                event.target.result;
+
+            fileName.textContent =
+                file.name;
+
+            uploadPrompt.classList.add(
+                "hidden"
+            );
+
+            previewContainer.classList.remove(
+                "hidden"
+            );
+
+            analyzeButton.disabled = false;
+
+        };
+
+
+        reader.readAsDataURL(file);
+
+    }
+
+
+    // -----------------------------------------------------
+    // Remove
+    // -----------------------------------------------------
+
+    removeButton.addEventListener(
+        "click",
+        event => {
+
+            event.stopPropagation();
+            resetUpload();
+
+        }
+    );
+
+
+    function resetUpload() {
+
+        selectedFile = null;
+
+        fileInput.value = "";
+
+        imagePreview.src = "";
+
+        uploadPrompt.classList.remove(
+            "hidden"
+        );
+
+        previewContainer.classList.add(
+            "hidden"
+        );
+
+        analyzeButton.disabled = true;
+
+        hideError();
+
+    }
+
+
+    // -----------------------------------------------------
+    // Prediction
+    // -----------------------------------------------------
+
+    analyzeButton.addEventListener(
+        "click",
+        async () => {
+
+            if (!selectedFile) {
+                return;
+            }
+
+
+            setLoading(true);
+            hideError();
+
+
+            const formData =
+                new FormData();
+
+            formData.append(
+                "file",
+                selectedFile
+            );
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/predict",
+                        {
+                            method: "POST",
+                            body: formData
+                        }
+                    );
+
+
+                const data =
+                    await response.json();
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        data.detail ||
+                        "Prediction failed."
+                    );
+
+                }
+
+
+                showPrediction(data);
+
+            }
+
+            catch (error) {
+
+                showError(error.message);
+
+            }
+
+            finally {
+
+                setLoading(false);
+
+            }
+
+        }
+    );
+
+
+    // -----------------------------------------------------
+    // Show prediction
+    // -----------------------------------------------------
+
+    function showPrediction(data) {
+
+        emptyResult.classList.add(
+            "hidden"
+        );
+
+        predictionResult.classList.remove(
+            "hidden"
+        );
+
+
+        predictedClass.textContent =
+            data.predicted_class;
+
+
+        const confidence =
+            data.confidence_percentage;
+
+
+        confidenceValue.textContent =
+            confidence.toFixed(2) + "%";
+
+
+        // Animate after rendering
+        confidenceBar.style.width = "0%";
+
+        setTimeout(
+            () => {
+
+                confidenceBar.style.width =
+                    confidence + "%";
+
+            },
+            100
+        );
+
+
+        topPredictions.innerHTML = "";
+
+
+        data.top_3_predictions.forEach(
+            (prediction, index) => {
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "prediction-item";
+
+
+                item.innerHTML = `
+                    <div class="prediction-row">
+
+                        <div class="prediction-name">
+
+                            <span class="rank">
+                                ${String(index + 1).padStart(2, "0")}
+                            </span>
+
+                            <strong>
+                                ${escapeHtml(prediction.class)}
+                            </strong>
+
+                        </div>
+
+                        <span class="prediction-percent">
+                            ${prediction.percentage.toFixed(2)}%
+                        </span>
+
+                    </div>
+
+                    <div class="mini-track">
+
+                        <div
+                            class="mini-bar"
+                            style="width: ${prediction.percentage}%"
+                        ></div>
+
+                    </div>
+                `;
+
+
+                topPredictions.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    }
+
+
+    // -----------------------------------------------------
+    // Try again
+    // -----------------------------------------------------
+
+    tryAgainButton.addEventListener(
+        "click",
+        () => {
+
+            resetUpload();
+
+            predictionResult.classList.add(
+                "hidden"
+            );
+
+            emptyResult.classList.remove(
+                "hidden"
+            );
+
+            confidenceBar.style.width =
+                "0%";
+
+            topPredictions.innerHTML =
+                "";
+
+        }
+    );
+
+
+    // -----------------------------------------------------
+    // Loading
+    // -----------------------------------------------------
+
+    function setLoading(loading) {
+
+        analyzeButton.disabled =
+            loading;
+
+
+        if (loading) {
+
+            buttonText.textContent =
+                "Analyzing Marine Life...";
+
+            spinner.classList.remove(
+                "hidden"
+            );
+
+        }
+
+        else {
+
+            buttonText.textContent =
+                "Analyze Image";
+
+            spinner.classList.add(
+                "hidden"
+            );
+
+            analyzeButton.disabled =
+                !selectedFile;
+
+        }
+
+    }
+
+
+    // -----------------------------------------------------
+    // Error handling
+    // -----------------------------------------------------
+
+    function showError(message) {
+
+        errorBox.textContent =
+            message;
+
+        errorBox.classList.remove(
+            "hidden"
+        );
+
+    }
+
+
+    function hideError() {
+
+        errorBox.classList.add(
+            "hidden"
+        );
+
+        errorBox.textContent =
+            "";
+
+    }
+
+
+    // -----------------------------------------------------
+    // Basic output escaping
+    // -----------------------------------------------------
+
+    function escapeHtml(value) {
+
+        const div =
+            document.createElement("div");
+
+        div.textContent = value;
+
+        return div.innerHTML;
+
+    }
+
+</script>
+
+</body>
+</html>
